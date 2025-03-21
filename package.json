@@ -1,0 +1,16 @@
+{
+  "name": "task-manager",
+  "private": true,
+  "scripts": {
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "task-manager-ui/**/*.{vue,scss,sass,js,ts}": [
+      "eslint -c task-manager-ui/eslint.config.js --fix"
+    ]
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.3.0"
+  }
+}

@@ -1,0 +1,3 @@
+packages:
+  - "task-manager-ui"
+  - "task-manager-server"

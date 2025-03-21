@@ -1,0 +1,13 @@
+.main-container {
+  // padding: 40px 0px 100px 0px;
+  min-height: calc(100vh - 50px);
+}
+
+.banner {
+  background: linear-gradient(
+    90deg,
+    rgb(60 60 72) 0%,
+    rgb(40 33 100) 9%,
+    rgb(78 76 84) 100%
+  );
+}

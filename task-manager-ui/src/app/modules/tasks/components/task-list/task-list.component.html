@@ -1,0 +1,55 @@
+<div class="container mx-auto p-10 space-y-6">
+  {{ tasks$() }}
+  <cds-table-container>
+    <cds-table-header>
+      <h4 cdsTableHeaderTitle>Manage Tasks</h4>
+      <p cdsTableHeaderDescription>
+        Manage your tasks here. Search for your task and get started with your
+        work.
+      </p>
+    </cds-table-header>
+
+    <cds-table
+      [model]="model"
+      [sortable]="false"
+      [skeleton]="skeleton"
+      [showSelectionColumn]="showSelectionColumn"
+      [enableSingleSelect]="enableSingleSelect"
+      [stickyHeader]="stickyHeader"
+      [striped]="striped"
+      [isDataGrid]="isDataGrid"
+    >
+      <ng-content></ng-content>
+    </cds-table>
+  </cds-table-container>
+
+  <!-- <ng-template #templateRef>
+    <div style="padding: 0 1rem" (click)="overflowOnClick($event)">
+      <div style="padding-top: 0.5rem; color: grey">Countries shown</div>
+      <cds-checkbox
+        [checked]="displayedCountries.includes('US')"
+        (checkedChange)="filterCountries('US', $event)"
+      >
+        US
+      </cds-checkbox>
+      <cds-checkbox
+        [checked]="displayedCountries.includes('France')"
+        (checkedChange)="filterCountries('France', $event)"
+      >
+        France
+      </cds-checkbox>
+      <cds-checkbox
+        [checked]="displayedCountries.includes('Argentina')"
+        (checkedChange)="filterCountries('Argentina', $event)"
+      >
+        Argentina
+      </cds-checkbox>
+      <cds-checkbox
+        [checked]="displayedCountries.includes('Japan')"
+        (checkedChange)="filterCountries('Japan', $event)"
+      >
+        Japan
+      </cds-checkbox>
+    </div>
+  </ng-template> -->
+</div>
