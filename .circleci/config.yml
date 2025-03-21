@@ -1,0 +1,16 @@
+version: "2.1"
+setup: true
+
+orbs:
+  path-filtering: circleci/path-filtering@0.1.7
+
+workflows:
+  generate-config:
+    jobs:
+      - path-filtering/filter:
+          name: filter-for-build-code
+          base-revision: main
+          config-path: .circleci/continue-config.yml
+          mapping: |
+            task-manager-server/.* task-manager-server true
+            task-manager-ui/.* task-manager-ui true

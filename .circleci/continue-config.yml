@@ -1,0 +1,86 @@
+version: 2.1
+
+parameters:
+  task-manager-server:
+    type: boolean
+    default: false
+  task-manager-ui:
+    type: boolean
+    default: false
+
+workflows:
+  task-manager-server:
+    when:
+      or:
+        - << pipeline.parameters.task-manager-server >>
+    jobs:
+      - build-task-manager-server
+  task-manager-ui:
+    when:
+      or:
+        - << pipeline.parameters.task-manager-ui >>
+    jobs:
+      - build-task-manager-ui
+
+jobs:
+  build-task-manager-server:
+    docker:
+      - image: node:22
+    resource_class: large
+    steps:
+      - checkout
+      - run:
+          name: Install pnpm package manager
+          command: |
+            corepack enable
+            corepack prepare pnpm@10.0.0 --activate
+      - run:
+          name: Install Dependencies
+          command: |
+            pnpm install
+      - save_cache:
+          name: Save pnpm Package Cache
+          key: pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
+          paths:
+            - node_modules
+      # - run:
+      #     name: Test task-manager-server
+      #     command: |
+      #       cd task-manager-server && pnpm run test
+      - run:
+          name: Build
+          command: |
+            cd task-manager-server && pnpm run build
+
+  build-task-manager-ui:
+    docker:
+      - image: node:22
+    resource_class: large
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restore pnpm Package Cache
+          keys:
+            - pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
+      - run:
+          name: Install pnpm package manager
+          command: |
+            corepack enable
+            corepack prepare pnpm@10.0.0 --activate
+      - run:
+          name: Install Dependencies
+          command: |
+            pnpm install
+      - save_cache:
+          name: Save pnpm Package Cache
+          key: pnpm-packages-{{ checksum "pnpm-lock.yaml" }}
+          paths:
+            - node_modules
+      # - run:
+      #     name: Test task-manager-ui
+      #     command: |
+      #       cd task-manager-ui && pnpm run test
+      - run:
+          name: Build
+          command: |
+            cd task-manager-ui && pnpm run build
