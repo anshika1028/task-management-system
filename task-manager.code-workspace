@@ -1,0 +1,17 @@
+{
+  "folders": [
+    {
+      "name": "backend",
+      "path": "./task-manager-server",
+    },
+    {
+      "name": "frontend",
+      "path": "./task-manager-ui",
+    },
+  ],
+  "settings": {
+    "eslint.useFlatConfig": true,
+    "eslint.format.enable": true,
+    "eslint.debug": false,
+  },
+}

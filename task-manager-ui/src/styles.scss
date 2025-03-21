@@ -1,0 +1,61 @@
+/* You can add global styles to this file, and also import other style files */
+/* You can add global styles to this file, and also import other style files */
+
+@use "@carbon/styles/scss/config" with (
+  /* Use flexbox for grid - stick to CSS Grid or Flexbox */
+    /* CSS Grid has become the default grid system in v11 */
+  $use-flexbox-grid: true,
+  /* Update path of fonts to exclude tilde, required for vite (Angular 16+) */
+  $font-path: "@ibm/plex"
+);
+
+@use "@carbon/styles";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import css variables in root */
+html {
+  @include styles.theme(styles.$white);
+
+  body {
+    font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    -webkit-overflow-scrolling: touch;
+    --primary-color: #2e3438;
+    --primary-text-color: #2e3438;
+    --font-size-base: 14px;
+  }
+}
+
+.text-2xs {
+  font-size: 0.6rem;
+}
+
+.search--tag {
+  .cds--tag {
+    margin-left: 0px !important;
+    border-radius: 5px !important;
+  }
+}
+
+a.cds--link {
+  color: #2e3438;
+  text-decoration: none;
+  &:hover,
+  &:visited:hover {
+    text-decoration: underline;
+    color: #2e343895;
+  }
+  &:visited {
+    color: #2e343880;
+  }
+  &:active,
+  &:focus {
+    color: #2e3438;
+  }
+}
