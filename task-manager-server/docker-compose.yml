@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.9'
 services:
   db:
     image: postgres:14
@@ -12,7 +12,7 @@ services:
       - "5432:5432"
 
   app:
-    image: anshika1028/task-manager:latest
+    image: task-manager-server:latest
     ports:
       - "3000:3000"
     environment:

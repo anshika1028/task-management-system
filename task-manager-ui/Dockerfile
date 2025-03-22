@@ -4,24 +4,24 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy the rest of the app
 COPY . /app
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
 # Install dependencies
+RUN npm install -g @angular/cli
 RUN npm install
 
 # Build the TypeScript project
 RUN npm run build
 
 # Expose port (adjust if needed)
-EXPOSE 3000
+EXPOSE 8080
 
 # Run the compiled app
-CMD ["node", "dist/server.js"]
+CMD ["ng", "serve", "--host", "0.0.0.0"]
 
 
-# Docker command to build
+# Dcoker command to build
 # docker build -t task-manager-server .
