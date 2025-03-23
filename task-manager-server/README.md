@@ -42,12 +42,20 @@ cd task-manager-server
 ```
 
 ### 2. Install Dependencies
+Before installing make sure you have node and pnpm installed globally already
 
 ```bash
 pnpm install
 ```
 
 ### 3. Setup Environment
+create db in postgress
+
+```
+CREATE DATABASE task_manager;
+```
+
+
 
 Create a `.env` file in the root directory with necessary environment variables.
 
