@@ -1,0 +1,205 @@
+============================================================
+LOGIN API CONTRACT
+============================================================
+{
+  'API'   : '/api/auth/login',
+  'Method': 'POST',
+  'Request': {
+    'username': 'string',
+    'password': 'string'
+  },
+  'Response': {
+    'success': true,
+    'message': 'Login successful',
+    'token': 'string',
+    'data': {
+      'user': {
+        'id': 'integer',
+        'username': 'string',
+        'role': 'string'
+      }
+    }
+  },
+  'Error': {
+    'success': false,
+    'message': 'Invalid credentials'
+  }
+}
+
+============================================================
+REGISTER API CONTRACT
+============================================================
+{
+  'API'   : '/api/auth/register',
+  'Method': 'POST',
+  'Request': {
+    'username': 'string',
+    'password': 'string',
+    'role'    : 'string'
+  },
+  'Response': {
+    'success': true,
+    'message': 'User registered successfully'
+  },
+  'Error': {
+    'success': false,
+    'message': 'User already exists'
+  }
+}
+
+============================================================
+TASKS_LIST API CONTRACT
+============================================================
+{
+  'API'   : '/api/tasks',
+  'Method': 'GET',
+  'Headers': {
+    'Authorization': 'Bearer <token>'
+  },
+  'Query Params': ['priority', 'due_date', 'page', 'limit'],
+  'Response': {
+    'success': true,
+    'message': 'Tasks fetched successfully',
+    'data': {
+      'totalRecords': 'integer',
+      'currentPage' : 'integer',
+      'totalPages'  : 'integer',
+      'tasks': [{
+        'id'        : 'integer',
+        'title'     : 'string',
+        'description': 'string',
+        'priority'  : 'string',
+        'due_date'  : 'string',
+        'completed' : 'boolean',
+        'username'  : 'string'
+      }]
+    }
+  }
+}
+
+============================================================
+CREATE_TASK API CONTRACT
+============================================================
+{
+  'API'   : '/api/tasks',
+  'Method': 'POST',
+  'Headers': {
+    'Authorization': 'Bearer <token>'
+  },
+  'Request': {
+    'title'      : 'string',
+    'description': 'string',
+    'priority'   : 'string',
+    'due_date'   : 'string'
+  },
+  'Response': {
+    'success': true,
+    'message': 'Task created successfully',
+    'data': {
+      'task': {
+        'id'        : 'integer',
+        'title'     : 'string',
+        'description': 'string',
+        'priority'  : 'string',
+        'due_date'  : 'string (ISO Date)',
+        'completed' : 'boolean',
+        'user_id'   : 'integer',
+        'createdAt' : 'string (timestamp)',
+        'updatedAt' : 'string (timestamp)'
+      }
+    }
+  }
+}
+
+============================================================
+UPDATE_TASK API CONTRACT
+============================================================
+{
+  'API'   : '/api/tasks/:id',
+  'Method': 'PUT',
+  'Headers': {
+    'Authorization': 'Bearer <token>'
+  },
+  'Request': {
+    'title'      : 'string',
+    'description': 'string',
+    'priority'   : 'string',
+    'due_date'   : 'string',
+    'completed'  : 'boolean'
+  },
+  'Response': {
+    'success': true,
+    'message': 'Task updated successfully',
+    'data': {
+      'task': {
+        'id'        : 'integer',
+        'title'     : 'string',
+        'description': 'string',
+        'priority'  : 'string',
+        'due_date'  : 'string (ISO Date)',
+        'completed' : 'boolean',
+        'user_id'   : 'integer',
+        'createdAt' : 'string (timestamp)',
+        'updatedAt' : 'string (timestamp)'
+      }
+    }
+  }
+}
+
+============================================================
+DELETE_TASK API CONTRACT (Admin Only)
+============================================================
+{
+  'API'   : '/api/tasks/:id',
+  'Method': 'DELETE',
+  'Headers': {
+    'Authorization': 'Bearer <token>'
+  },
+  'Response': {
+    'success': true,
+    'message': 'Task deleted successfully'
+  },
+  'Error': {
+    'success': false,
+    'message': 'Unauthorized: Only admins can delete tasks'
+  }
+}
+
+============================================================
+META API CONTRACT
+============================================================
+{
+  'API'   : '/api/meta',
+  'Method': 'GET',
+  'Response': {
+    'success': true,
+    'message': 'Meta data fetched successfully',
+    'data': {
+      'roles'        : ['admin', 'user'],
+      'priorities'   : ['low', 'medium', 'high'],
+      'publicHolidays': [{
+        'id'          : 2,
+        'holiday_name': 'New Year\'s Day',
+        'date'        : '2025-01-01'
+      }]
+    }
+  }
+}
+
+============================================================
+CONTRACT FREEZING PROCESS
+============================================================
+[
+  {
+    'Step'       : 'Review & Approval',
+    'Description': 'Shared with stakeholders (backend, frontend, QA)'
+  },
+  {
+    'Step'       : 'Feedback Iteration',
+    'Description': 'Suggestions are reviewed and incorporated'
+  },
+  {
+    'Step'       : 'Final Freeze',
+    'Description': 'Contract is locked; changes require formal request'
+  }
+]
