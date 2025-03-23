@@ -18,6 +18,8 @@ export class HeaderComponent {
 
   username = this.userStore?.user?.username ?? "";
 
+  isAdmin = this.userStore.isAdmin;
+
   logout() {
     this.userStore.logout();
   }

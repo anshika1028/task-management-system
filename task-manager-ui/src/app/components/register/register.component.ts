@@ -11,10 +11,12 @@ import {
   ButtonModule,
   InputModule,
   LinkModule,
+  RadioModule,
   SelectModule,
 } from "carbon-components-angular";
 import { ERROR_LABELS } from "../../constants/labels";
 import { AuthService } from "../../services/auth.service";
+import { MetaStore } from "../../stores/meta.store";
 import { UserStore } from "../../stores/user.store";
 
 @Component({
@@ -27,6 +29,7 @@ import { UserStore } from "../../stores/user.store";
     ButtonModule,
     LinkModule,
     SelectModule,
+    RadioModule,
   ],
 })
 export class RegisterComponent implements OnInit {
@@ -41,7 +44,8 @@ export class RegisterComponent implements OnInit {
     private formBuilder: FormBuilder,
     private router: Router,
     private userStore: UserStore,
-    private authService: AuthService
+    private authService: AuthService,
+    private metaStore: MetaStore // ✅ Inject MetaStore to access public holidays
   ) {
     // ✅ Redirect to home if already logged in
     if (this.userStore.isAuthenticated) {
@@ -53,11 +57,19 @@ export class RegisterComponent implements OnInit {
     this.registerForm = this.formBuilder.group({
       username: [
         "",
-        [Validators.required, Validators.minLength(4), Validators.maxLength(10)],
+        [
+          Validators.required,
+          Validators.minLength(4),
+          Validators.maxLength(10),
+        ],
       ],
       password: [
         "",
-        [Validators.required, Validators.minLength(4), Validators.maxLength(10)],
+        [
+          Validators.required,
+          Validators.minLength(4),
+          Validators.maxLength(10),
+        ],
       ],
       role: ["", [Validators.required]],
     });
@@ -68,9 +80,18 @@ export class RegisterComponent implements OnInit {
     return this.registerForm.controls;
   }
 
+  get roles() {
+    return this.metaStore.roles ?? [];
+  }
+
   getErrors(field: string): string {
     const errors = this.f[field]?.errors;
     return errors ? this.errorLabels[Object.keys(errors)[0]] : "";
+  }
+
+  capitalizeText(text: string): string {
+    if (!text) return text;
+    return text.charAt(0).toUpperCase() + text.slice(1);
   }
 
   async onSubmit() {
@@ -95,7 +116,7 @@ export class RegisterComponent implements OnInit {
       this.successMsg = "Registration Successful! Redirecting to login page...";
       setTimeout(() => {
         this.router.navigateByUrl("/login");
-      }, 5000);
+      }, 2000);
     } catch (error: any) {
       this.error = error?.message || "Registration failed";
       this.successMsg = "";

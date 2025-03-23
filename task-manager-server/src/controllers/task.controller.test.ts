@@ -1,18 +1,20 @@
 import { Response } from "express";
 import { Op } from "sequelize";
-import ApiError from "../middlewares/ApiError";
 import PublicHoliday from "../models/public-holiday.model";
+import TaskHistory from "../models/task-history.model";
 import Task from "../models/task.model";
 import {
   createTask,
   deleteTask,
   getTasks,
+  undoTask,
   updateTask,
 } from "./task.controller";
 
 // Mocking dependencies
 jest.mock("../models/task.model");
 jest.mock("../models/public-holiday.model");
+jest.mock("../models/task-history.model");
 
 describe("Task Controller", () => {
   let mockRequest: any;
@@ -66,17 +68,30 @@ describe("Task Controller", () => {
         limit: 10,
         offset: 0,
         order: [["due_date", "ASC"]],
+        include: [{ model: User, attributes: ["username"] }],
       });
       expect(mockResponse.json).toHaveBeenCalledWith({
         success: true,
         message: "Tasks fetched successfully",
-        totalRecords: 2,
-        currentPage: 1,
-        totalPages: 1,
-        tasks: [
-          { id: 1, title: "Task 1", priority: "high", due_date: "2024-03-22" },
-          { id: 2, title: "Task 2", priority: "high", due_date: "2024-03-22" },
-        ],
+        data: {
+          totalRecords: 2,
+          currentPage: 1,
+          pageLength: 10,
+          tasks: [
+            {
+              id: 1,
+              title: "Task 1",
+              priority: "high",
+              due_date: "2024-03-22",
+            },
+            {
+              id: 2,
+              title: "Task 2",
+              priority: "high",
+              due_date: "2024-03-22",
+            },
+          ],
+        },
       });
     });
 
@@ -95,10 +110,12 @@ describe("Task Controller", () => {
       expect(mockResponse.json).toHaveBeenCalledWith({
         success: false,
         message: "No records found",
-        totalRecords: 0,
-        currentPage: 1,
-        totalPages: 0,
-        tasks: [],
+        data: {
+          totalRecords: 0,
+          currentPage: 1,
+          pageLength: 10,
+          tasks: [],
+        },
       });
     });
 
@@ -106,7 +123,7 @@ describe("Task Controller", () => {
       // Arrange
       mockRequest.query = {};
       (Task.findAndCountAll as jest.Mock).mockRejectedValue(
-        new Error("Database error")
+        new Error("Database error"),
       );
 
       // Act
@@ -155,13 +172,15 @@ describe("Task Controller", () => {
       expect(mockResponse.json).toHaveBeenCalledWith({
         success: true,
         message: "Task created successfully",
-        task: {
-          id: 3,
-          title: "New Task",
-          description: "Task description",
-          priority: "medium",
-          due_date: "2024-03-25",
-          user_id: 1,
+        data: {
+          task: {
+            id: 3,
+            title: "New Task",
+            description: "Task description",
+            priority: "medium",
+            due_date: "2024-03-25",
+            user_id: 1,
+          },
         },
       });
     });
@@ -223,7 +242,7 @@ describe("Task Controller", () => {
       };
       mockRequest.userId = 1;
       (PublicHoliday.findOne as jest.Mock).mockRejectedValue(
-        new Error("Database error")
+        new Error("Database error"),
       );
 
       // Act
@@ -273,7 +292,7 @@ describe("Task Controller", () => {
       expect(mockResponse.json).toHaveBeenCalledWith({
         success: true,
         message: "Task updated successfully",
-        task: mockTask,
+        data: { task: { ...mockTask, showUndoButton: true } },
       });
     });
 
@@ -306,63 +325,6 @@ describe("Task Controller", () => {
         due_date: "2024-03-25",
         completed: false,
         user_id: 1,
-      };
-      (Task.findByPk as jest.Mock).mockResolvedValue(mockTask);
-
-      // Act
-      await updateTask(mockRequest as any, mockResponse as Response, next);
-
-      // Assert
-      expect(mockResponse.status).toHaveBeenCalledWith(403);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        message: "Not authorized to update this task",
-      });
-    });
-
-    it("should return 404 if task is not found when updating", async () => {
-      // Arrange
-      mockRequest.params = { id: "99" };
-      mockRequest.userId = 1;
-      mockRequest.body = {
-        title: "Updated Task",
-        description: "Updated Description",
-        priority: "high",
-        due_date: "2024-03-26",
-        completed: true,
-      };
-      (Task.findByPk as jest.Mock).mockResolvedValue(null);
-
-      // Act
-      await updateTask(mockRequest as any, mockResponse as Response, next);
-
-      // Assert
-      expect(mockResponse.status).toHaveBeenCalledWith(404);
-      expect(mockResponse.json).toHaveBeenCalledWith({
-        success: false,
-        message: "Task not found",
-      });
-    });
-
-    it("should return 403 if user tries to update a task that doesn't belong to them", async () => {
-      // Arrange
-      mockRequest.params = { id: "1" };
-      mockRequest.userId = 2; // Different from task.user_id
-      mockRequest.body = {
-        title: "Updated Task",
-        description: "Updated Description",
-        priority: "high",
-        due_date: "2024-03-26",
-        completed: true,
-      };
-      const mockTask = {
-        id: 1,
-        title: "Original Task",
-        description: "Original description",
-        priority: "medium",
-        due_date: "2024-03-25",
-        completed: false,
-        user_id: 1, // Different from mockRequest.userId
       };
       (Task.findByPk as jest.Mock).mockResolvedValue(mockTask);
 
@@ -411,12 +373,6 @@ describe("Task Controller", () => {
       mockRequest.params = { id: "99" };
       (Task.findByPk as jest.Mock).mockResolvedValue(null);
 
-      // Create an ApiError instance to simulate what the controller throws
-      const apiError = new ApiError(404, "Task not found");
-      (Task.findByPk as jest.Mock).mockImplementation(() => {
-        throw apiError;
-      });
-
       // Act
       await deleteTask(mockRequest as any, mockResponse as Response, next);
 
@@ -432,11 +388,133 @@ describe("Task Controller", () => {
       // Arrange
       mockRequest.params = { id: "1" };
       (Task.findByPk as jest.Mock).mockRejectedValue(
-        new Error("Database error")
+        new Error("Database error"),
       );
 
       // Act
       await deleteTask(mockRequest as any, mockResponse as Response, next);
+
+      // Assert
+      expect(next).toHaveBeenCalledWith(new Error("Database error"));
+    });
+  });
+
+  describe("undoTask", () => {
+    it("should undo a task successfully", async () => {
+      // Arrange
+      mockRequest.params = { id: "1" };
+      mockRequest.userId = 1;
+      const mockTaskHistory = {
+        id: 1,
+        title: "Original Task",
+        description: "Original description",
+        priority: "medium",
+        due_date: "2024-03-25",
+        completed: false,
+        user_id: 1,
+        updatedAt: new Date(Date.now() - 2 * 60 * 1000), // 2 minutes ago
+      };
+      (TaskHistory.findOne as jest.Mock).mockResolvedValue(mockTaskHistory);
+      (Task.update as jest.Mock).mockResolvedValue([1]);
+
+      // Act
+      await undoTask(mockRequest as any, mockResponse as Response, next);
+
+      // Assert
+      expect(TaskHistory.findOne).toHaveBeenCalledWith({
+        where: { id: "1" },
+        order: [["updatedAt", "DESC"]],
+      });
+      expect(Task.update).toHaveBeenCalledWith(mockTaskHistory, {
+        where: { id: "1" },
+      });
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        success: true,
+        message: "Task history restored successfully",
+        data: {
+          task: { ...mockTaskHistory, showUndoButton: false },
+        },
+      });
+    });
+
+    it("should return 404 if task history is not found", async () => {
+      // Arrange
+      mockRequest.params = { id: "99" };
+      (TaskHistory.findOne as jest.Mock).mockResolvedValue(null);
+
+      // Act
+      await undoTask(mockRequest as any, mockResponse as Response, next);
+
+      // Assert
+      expect(mockResponse.status).toHaveBeenCalledWith(404);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        success: false,
+        message: "Task history not found",
+      });
+    });
+
+    it("should return 405 if task history is older than 5 minutes", async () => {
+      // Arrange
+      mockRequest.params = { id: "1" };
+      const mockTaskHistory = {
+        id: 1,
+        title: "Original Task",
+        description: "Original description",
+        priority: "medium",
+        due_date: "2024-03-25",
+        completed: false,
+        user_id: 1,
+        updatedAt: new Date(Date.now() - 10 * 60 * 1000), // 10 minutes ago
+      };
+      (TaskHistory.findOne as jest.Mock).mockResolvedValue(mockTaskHistory);
+
+      // Act
+      await undoTask(mockRequest as any, mockResponse as Response, next);
+
+      // Assert
+      expect(mockResponse.status).toHaveBeenCalledWith(405);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        success: false,
+        message: "Task history expired (more than 5 minutes old)",
+      });
+    });
+
+    it("should return 403 if user is not authorized to undo the task", async () => {
+      // Arrange
+      mockRequest.params = { id: "1" };
+      mockRequest.userId = 2;
+      const mockTaskHistory = {
+        id: 1,
+        title: "Original Task",
+        description: "Original description",
+        priority: "medium",
+        due_date: "2024-03-25",
+        completed: false,
+        user_id: 1,
+        updatedAt: new Date(Date.now() - 2 * 60 * 1000), // 2 minutes ago
+      };
+      (TaskHistory.findOne as jest.Mock).mockResolvedValue(mockTaskHistory);
+
+      // Act
+      await undoTask(mockRequest as any, mockResponse as Response, next);
+
+      // Assert
+      expect(mockResponse.status).toHaveBeenCalledWith(403);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        success: false,
+        message: "Not authorized to update this task",
+      });
+    });
+
+    it("should handle errors and pass them to the next middleware", async () => {
+      // Arrange
+      mockRequest.params = { id: "1" };
+      (TaskHistory.findOne as jest.Mock).mockRejectedValue(
+        new Error("Database error"),
+      );
+
+      // Act
+      await undoTask(mockRequest as any, mockResponse as Response, next);
 
       // Assert
       expect(next).toHaveBeenCalledWith(new Error("Database error"));

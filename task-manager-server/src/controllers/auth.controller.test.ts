@@ -112,7 +112,7 @@ describe("Auth Controller", () => {
         role: "user",
       };
       (User.findOne as jest.Mock).mockRejectedValue(
-        new Error("Database error")
+        new Error("Database error"),
       );
 
       // Act
@@ -236,7 +236,7 @@ describe("Auth Controller", () => {
       });
       expect(bcrypt.compare).toHaveBeenCalledWith(
         "wrongpassword",
-        "hashedPassword"
+        "hashedPassword",
       );
       expect(mockResponse.status).toHaveBeenCalledWith(401);
       expect(mockResponse.json).toHaveBeenCalledWith({
@@ -252,7 +252,7 @@ describe("Auth Controller", () => {
         password: "password",
       };
       (User.findOne as jest.Mock).mockRejectedValue(
-        new Error("Database error")
+        new Error("Database error"),
       );
 
       // Act
@@ -273,7 +273,7 @@ describe("Auth Controller", () => {
         password: "password",
       };
       (User.findOne as jest.Mock).mockRejectedValue(
-        new Error("SequelizeDatabaseError")
+        new Error("SequelizeDatabaseError"),
       );
 
       // Act

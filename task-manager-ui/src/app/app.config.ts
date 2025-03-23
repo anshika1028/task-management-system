@@ -1,16 +1,32 @@
-import { ApplicationConfig, provideZoneChangeDetection } from "@angular/core";
-import { MarkdownModule, provideMarkdown } from "ngx-markdown";
-
-import { HTTP_INTERCEPTORS, provideHttpClient } from "@angular/common/http";
-import { ErrorHandler } from "@angular/core";
+import { provideHttpClient, withInterceptors } from "@angular/common/http";
+import {
+  ApplicationConfig,
+  ErrorHandler,
+  provideZoneChangeDetection,
+} from "@angular/core";
 import { provideRouter } from "@angular/router";
 import { provideIcons } from "@ng-icons/core";
-import { heroUserSolid } from "@ng-icons/heroicons/solid";
+import {
+  heroArrowUturnLeftSolid,
+  heroChartBarSolid,
+  heroChevronDownSolid,
+  heroChevronUpSolid,
+  heroClockSolid,
+  heroFunnelSolid,
+  heroPencilSolid,
+  heroPlusSolid,
+  heroTrashSolid,
+  heroUserSolid,
+  heroXMarkSolid,
+} from "@ng-icons/heroicons/solid";
+import { MarkdownModule, provideMarkdown } from "ngx-markdown";
 import { routes } from "./app.routes";
-import { HttpErrorInterceptor } from "./services/http-error-interceptor";
-import { ErrorInterceptor } from "./services/error.interceptor";
-import { GlobalErrorHandler } from "./services/globa-error-handler";
-import { JwtInterceptor } from "./services/jwt.interceptor";
+import { GlobalErrorHandler } from "./services/global-error-handler";
+
+import {
+  httpAuthInterceptor,
+  httpErrorInterceptor,
+} from "./services/http-interceptors";
 import { LoggingService } from "./services/logging-service";
 
 MarkdownModule.forRoot();
@@ -18,17 +34,24 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(),
     LoggingService,
+    provideHttpClient(
+      withInterceptors([httpErrorInterceptor, httpAuthInterceptor]),
+    ),
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: HttpErrorInterceptor,
-      multi: true,
-    },
-    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     provideMarkdown(),
-    provideIcons({ heroUserSolid }),
+    provideIcons({
+      heroUserSolid,
+      heroPlusSolid,
+      heroChartBarSolid,
+      heroClockSolid,
+      heroPencilSolid,
+      heroTrashSolid,
+      heroFunnelSolid,
+      heroXMarkSolid,
+      heroChevronDownSolid,
+      heroChevronUpSolid,
+      heroArrowUturnLeftSolid,
+    }),
   ],
 };

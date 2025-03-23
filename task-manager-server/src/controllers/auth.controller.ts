@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
-import jwt from 'jsonwebtoken';
 import { Request, Response } from "express";
+import jwt from "jsonwebtoken";
+import { authConfig } from "../config/auth.config";
 import ApiError from "../middlewares/ApiError";
 import User from "../models/user.model";
-import { authConfig } from "../config/auth.config";
 
 export const register = async (
   req: Request,
@@ -45,9 +45,8 @@ export const register = async (
       .status(201)
       .json({ success: true, message: "User registered successfully" });
   } catch (error: any) {
-    
     if (!(error instanceof ApiError)) {
-      throw new ApiError(500, "Error registering user");
+      throw new ApiError(500, "Error registering user", error);
     }
     throw error;
   }
@@ -71,16 +70,20 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
     if (!passwordValid) {
       throw new ApiError(401, "Invalid password");
     }
-    const userObj = { id: user.id, role: user.role }
+    const userObj = { id: user.id, role: user.role };
     const token = jwt.sign(
       userObj, // Payload (User ID & Role)
       authConfig.secret, // Secret Key
-      { expiresIn: '24h' } // Token Expiration Time
-  );
-    return res.json({ success: true, message: "Login successful", data: {token,  user: { ...userObj, username: user.username }}});
+      { expiresIn: "24h" } // Token Expiration Time
+    );
+    return res.json({
+      success: true,
+      message: "Login successful",
+      data: { token, user: { ...userObj, username: user.username } },
+    });
   } catch (error: any) {
     if (!(error instanceof ApiError)) {
-      throw new ApiError(500, "An error occurred during login");
+      throw new ApiError(500, "An error occurred during login", error);
     }
     throw error;
   }

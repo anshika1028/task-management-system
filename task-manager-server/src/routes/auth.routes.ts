@@ -1,6 +1,6 @@
-import express from 'express';
-import { Request, Response, NextFunction } from 'express';
-import { login, register } from '../controllers/auth.controller';
+import express from "express";
+import { Request, Response, NextFunction } from "express";
+import { login, register } from "../controllers/auth.controller";
 
 const router = express.Router();
 
@@ -34,13 +34,16 @@ const router = express.Router();
  *       400:
  *         description: User already exists
  */
-router.post('/register', async (req: Request, res: Response, next: NextFunction) => {
+router.post(
+  "/register",
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await register(req, res);
+      await register(req, res);
     } catch (error) {
-        next(error);
+      next(error);
     }
-});
+  },
+);
 
 /**
  * @swagger
@@ -68,12 +71,15 @@ router.post('/register', async (req: Request, res: Response, next: NextFunction)
  *       400:
  *         description: Invalid credentials
  */
-router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
+router.post(
+  "/login",
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await login(req, res);
+      await login(req, res);
     } catch (error) {
-        next(error);
+      next(error);
     }
-});
+  },
+);
 
 export default router;

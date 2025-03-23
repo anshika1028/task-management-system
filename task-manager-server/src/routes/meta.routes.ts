@@ -1,5 +1,5 @@
-import express from 'express';
-import { getMetaData } from '../controllers/meta.controller';
+import express from "express";
+import { getMetaData } from "../controllers/meta.controller";
 
 const router = express.Router();
 
@@ -13,6 +13,6 @@ const router = express.Router();
  *       200:
  *         description: Metadata fetched successfully
  */
-router.get('/', getMetaData);
+router.get("/", getMetaData);
 
 export default router;
