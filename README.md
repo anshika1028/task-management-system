@@ -34,7 +34,7 @@ task-manager/
 ### Install All Workspaces
 
 ```bash
-pnpm install
+npm install
 ```
 
 ## 🐳 Run Fullstack with Docker

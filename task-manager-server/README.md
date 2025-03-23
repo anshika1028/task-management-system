@@ -44,7 +44,7 @@ cd task-manager-server
 ### 2. Install Dependencies
 
 ```bash
-pnpm install
+npm install
 ```
 
 ### 3. Setup Environment
