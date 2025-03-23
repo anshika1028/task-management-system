@@ -1,6 +1,5 @@
 import { Routes } from "@angular/router";
 import { AboutUsComponent } from "./components/about-us/about-us.component";
-import { HomeComponent } from "./components/home/home.component";
 import { LoginComponent } from "./components/login/login.component";
 import { RegisterComponent } from "./components/register/register.component";
 import { SideBannerLayoutComponent } from "./layout/side-banner-layout/side-banner-layout.component";
@@ -39,10 +38,7 @@ export const routes: Routes = [
         redirectTo: "tasks",
         pathMatch: "full",
       },
-      {
-        path: "home",
-        component: HomeComponent,
-      },
+
       { path: "about-us", component: AboutUsComponent },
       // { path: "tasks", component: TaskListComponent, canActivate: [AuthGuard] },
       // {

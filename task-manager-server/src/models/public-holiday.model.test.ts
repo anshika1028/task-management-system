@@ -39,7 +39,7 @@ describe("PublicHoliday Model", () => {
       PublicHoliday.create({
         holiday_name: "Christmas",
         date: "2024-12-26", // Different date
-      })
+      }),
     ).rejects.toThrow();
   });
 
@@ -53,7 +53,7 @@ describe("PublicHoliday Model", () => {
       PublicHoliday.create({
         holiday_name: "Another Holiday", // Different name
         date: "2024-07-04", // Same date
-      })
+      }),
     ).rejects.toThrow();
   });
 });

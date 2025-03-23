@@ -1,6 +1,6 @@
+import { Express } from "express";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
-import { Express } from "express";
 
 // Define Swagger options
 const options: swaggerJSDoc.Options = {
@@ -32,11 +32,7 @@ const options: swaggerJSDoc.Options = {
       },
     ],
   },
-  apis: [
-    "./src/routes/*.ts",
-    "./src/controllers/*.ts",
-    "./src/models/*.ts",
-  ], // Adjust path based on your project root
+  apis: ["./src/routes/*.ts", "./src/controllers/*.ts", "./src/models/*.ts"], // Adjust path based on your project root
 };
 
 // Initialize Swagger JSDoc
@@ -44,6 +40,15 @@ const swaggerSpec = swaggerJSDoc(options);
 
 // Function to setup Swagger
 export const setupSwagger = (app: Express): void => {
+  // Serve the Swagger UI
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-  console.log("📄 Swagger documentation available at http://localhost:3000/api-docs");
+
+  // Serve the raw Swagger JSON schema
+  app.get("/swagger.json", (req, res) => {
+    res.setHeader("Content-Type", "application/json");
+    res.send(swaggerSpec);
+  });
+
+  console.log("📄 Swagger UI: http://localhost:3000/api-docs");
+  console.log("📄 Swagger JSON: http://localhost:3000/swagger.json");
 };

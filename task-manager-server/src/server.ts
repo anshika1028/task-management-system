@@ -13,6 +13,6 @@ sequelize
       logger.info(`Server is running on port ${PORT}.`);
     });
   })
-  .catch((err) => {
-    throw new ApiError(500, "Database connection error");
+  .catch((error: Error) => {
+    throw new ApiError(500, "Database connection error", error);
   });

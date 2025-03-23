@@ -9,7 +9,7 @@ import User from "../models/user.model";
  */
 export const getMetaData = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   try {
     // ✅ Extract ENUM values from User model (Roles)
@@ -34,7 +34,7 @@ export const getMetaData = async (
         publicHolidays, // ✅ Public holidays from DB
       },
     });
-  } catch (error) {
-    throw new ApiError(500, "Error fetching meta data");
+  } catch (error: any) {
+    throw new ApiError(500, "Error fetching meta data", error);
   }
 };

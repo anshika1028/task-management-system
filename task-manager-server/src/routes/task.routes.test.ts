@@ -31,12 +31,12 @@ describe("Task Routes", () => {
     (verifyToken as jest.Mock).mockImplementation(
       (req: Request, res: Response, next: NextFunction) => {
         next();
-      }
+      },
     );
     (getTasks as jest.Mock).mockImplementation(
       (req: Request, res: Response) => {
         res.status(200).json({ message: "Get tasks successful" });
-      }
+      },
     );
 
     // Act
@@ -53,12 +53,12 @@ describe("Task Routes", () => {
     (verifyToken as jest.Mock).mockImplementation(
       (req: Request, res: Response, next: NextFunction) => {
         next();
-      }
+      },
     );
     (createTask as jest.Mock).mockImplementation(
       (req: Request, res: Response) => {
         res.status(201).json({ message: "Create task successful" });
-      }
+      },
     );
 
     // Act
@@ -80,12 +80,12 @@ describe("Task Routes", () => {
     (verifyToken as jest.Mock).mockImplementation(
       (req: Request, res: Response, next: NextFunction) => {
         next();
-      }
+      },
     );
     (updateTask as jest.Mock).mockImplementation(
       (req: Request, res: Response) => {
         res.status(200).json({ message: "Update task successful" });
-      }
+      },
     );
 
     // Act
@@ -103,7 +103,7 @@ describe("Task Routes", () => {
     expect(updateTask).toHaveBeenCalledWith(
       expect.anything(),
       expect.anything(),
-      expect.any(Function)
+      expect.any(Function),
     );
   });
 
@@ -112,17 +112,17 @@ describe("Task Routes", () => {
     (verifyToken as jest.Mock).mockImplementation(
       (req: Request, res: Response, next: NextFunction) => {
         next();
-      }
+      },
     );
     (isAdmin as jest.Mock).mockImplementation(
       (req: Request, res: Response, next: NextFunction) => {
         next();
-      }
+      },
     );
     (deleteTask as jest.Mock).mockImplementation(
       (req: Request, res: Response) => {
         res.status(200).json({ message: "Delete task successful" });
-      }
+      },
     );
 
     // Act
@@ -139,12 +139,12 @@ describe("Task Routes", () => {
     (verifyToken as jest.Mock).mockImplementation(
       (req: Request, res: Response, next: NextFunction) => {
         next();
-      }
+      },
     );
     (getTasks as jest.Mock).mockImplementation(
       (req: Request, res: Response, next: NextFunction) => {
         next(new Error("Get tasks error"));
-      }
+      },
     );
 
     app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
@@ -165,12 +165,12 @@ describe("Task Routes", () => {
     (verifyToken as jest.Mock).mockImplementation(
       (req: Request, res: Response, next: NextFunction) => {
         next();
-      }
+      },
     );
     (createTask as jest.Mock).mockImplementation(
       (req: Request, res: Response, next: NextFunction) => {
         next(new Error("Create task error"));
-      }
+      },
     );
 
     app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
@@ -196,12 +196,12 @@ describe("Task Routes", () => {
     (verifyToken as jest.Mock).mockImplementation(
       (req: Request, res: Response, next: NextFunction) => {
         next();
-      }
+      },
     );
     (updateTask as jest.Mock).mockImplementation(
       (req: Request, res: Response, next: NextFunction) => {
         next(new Error("Update task error"));
-      }
+      },
     );
 
     app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
@@ -228,17 +228,17 @@ describe("Task Routes", () => {
     (verifyToken as jest.Mock).mockImplementation(
       (req: Request, res: Response, next: NextFunction) => {
         next();
-      }
+      },
     );
     (isAdmin as jest.Mock).mockImplementation(
       (req: Request, res: Response, next: NextFunction) => {
         next();
-      }
+      },
     );
     (deleteTask as jest.Mock).mockImplementation(
       (req: Request, res: Response, next: NextFunction) => {
         next(new Error("Delete task error"));
-      }
+      },
     );
 
     app.use((err: Error, req: Request, res: Response, next: NextFunction) => {

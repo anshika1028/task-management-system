@@ -9,7 +9,7 @@ class User extends Model {
   password!: string;
 
   @Column({
-    type: DataType.ENUM("admin", "user"), // ✅ Restrict role to these values
+    type: DataType.ENUM("user", "admin"), // ✅ Restrict role to these values
     allowNull: false,
     defaultValue: "user",
   })

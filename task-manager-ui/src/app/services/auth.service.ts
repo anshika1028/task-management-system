@@ -1,7 +1,9 @@
 import { Injectable } from "@angular/core";
-import axios from "axios";
+import { HttpClient } from "@angular/common/http";
 import { environment } from "../../environment";
 import { UserStore } from "../stores/user.store";
+import { catchError, map } from "rxjs/operators";
+import { firstValueFrom, throwError } from "rxjs";
 
 interface User {
   id: number;
@@ -14,45 +16,81 @@ interface User {
 })
 export class AuthService {
   private baseUrl = environment.apiBaseUrl;
-  private apiUrl = "/api/auth"; // Adjust as needed
+  private apiUrl = "/api/auth";
 
-  constructor(private userStore: UserStore) {} // ✅ Injecting MobX Store
+  constructor(
+    private http: HttpClient,
+    private userStore: UserStore,
+  ) {}
+
+  getToken(): string | null {
+    return localStorage.getItem("token");
+  }
 
   /**
    * ✅ Login Function
    */
   async login(username: string, password: string): Promise<any> {
     try {
-      const response = await axios.post(`${this.baseUrl}${this.apiUrl}/login`, {
-        username,
-        password,
-      });
-      // ✅ Store user in MobX Store & LocalStorage
-      localStorage.setItem("token", response.data.data.token);
-      this.userStore.setUser(response.data.data.user);
+      const response$ = this.http
+        .post<any>(`${this.baseUrl}${this.apiUrl}/login`, {
+          username,
+          password,
+        })
+        .pipe(
+          map((response) => {
+            if (response.success) {
+              localStorage.setItem("token", response.data.token);
+              this.userStore.setUser(response.data.user);
+              return response.data;
+            } else {
+              throw new Error(response.message || "Login failed");
+            }
+          }),
+          catchError((error) => {
+            console.error("❌ Login Error:", error);
+            return throwError(() => error.error || "Login failed");
+          }),
+        );
 
-      return response.data.data;
-    } catch (error: any) {
-      console.error("❌ Login Error:", error);
-      return Promise.reject(error.response?.data || "Login failed");
+      return await firstValueFrom(response$);
+    } catch (err) {
+      return Promise.reject(err);
     }
   }
 
   /**
    * ✅ Register Function
    */
-  async register(username: string, password: string, role: string): Promise<any> {
+  async register(
+    username: string,
+    password: string,
+    role: string,
+  ): Promise<any> {
     try {
-      const response = await axios.post(`${this.baseUrl}${this.apiUrl}/register`, {
-        username,
-        password,
-        role,
-      });
+      const response$ = this.http
+        .post<any>(`${this.baseUrl}${this.apiUrl}/register`, {
+          username,
+          password,
+          role,
+        })
+        .pipe(
+          map((response) => {
+            if (response.success) {
+              return response.data;
+            } else {
+              throw new Error(response.message || "Registration failed");
+            }
+          }),
+          catchError((error) => {
+            console.error("❌ Registration Error:", error);
+            return throwError(() => error.error || "Registration failed");
+          }),
+        );
 
-      return response.data.data;
-    } catch (error: any) {
-      console.error("❌ Registration Error:", error);
-      return Promise.reject(error.response?.data || "Registration failed");
+      return await firstValueFrom(response$);
+    } catch (err) {
+      return Promise.reject(err);
     }
   }
 }

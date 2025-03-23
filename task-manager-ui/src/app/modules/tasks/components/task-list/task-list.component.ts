@@ -1,185 +1,175 @@
-import { CommonModule } from "@angular/common";
-import { Component, inject, Input, OnInit, signal } from "@angular/core";
-import { FormBuilder, FormGroup, ReactiveFormsModule } from "@angular/forms";
+import { Component, inject, OnInit, signal } from "@angular/core";
+import { NgIcon } from "@ng-icons/core";
 import {
   ButtonModule,
-  CheckboxModule,
+  ComboBoxModule,
   DatePickerModule,
-  DropdownModule,
-  InputModule,
+  ListItem,
+  ModalService,
   PaginationModule,
-  TableHeaderItem,
-  TableItem,
-  TableModel,
-  TableModule,
+  SkeletonModule,
+  StructuredListModule,
+  TagModule,
 } from "carbon-components-angular";
 import { autorun } from "mobx";
+import { capitalize, getTimeAgoString } from "../../../../misc/utils";
+import { Task } from "../../../../models/task.model";
 import { TaskService } from "../../../../services/task.service";
+import { MetaStore } from "../../../../stores/meta.store";
 import { TaskStore } from "../../../../stores/tasks.store";
-
+import { UserStore } from "../../../../stores/user.store";
+import { TaskDeleteComponent } from "../task-delete/task-delete.component";
+import { TaskFormComponent } from "../task-form/task-form.component";
 @Component({
   selector: "app-task-list",
   standalone: true,
   imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    InputModule,
-    DropdownModule,
-    TableModule,
     DatePickerModule,
     PaginationModule,
     ButtonModule,
-    CheckboxModule,
+    NgIcon,
+    TaskFormComponent,
+    TaskDeleteComponent,
+    SkeletonModule,
+    StructuredListModule,
+    TagModule,
+    ComboBoxModule,
   ],
   templateUrl: "./task-list.component.html",
 })
 export class TaskListComponent implements OnInit {
   private taskService = inject(TaskService);
   private taskStore = inject(TaskStore);
-  private fb = inject(FormBuilder);
+  private metaStore = inject(MetaStore);
+  private userStore = inject(UserStore);
 
+  isAdmin = this.userStore.isAdmin;
+  loading = true;
+  taskToEdit = null;
   tasks$ = signal(this.taskStore.tasks);
-  totalRecords$ = signal(this.taskStore.totalRecords);
-  currentPage$ = signal(this.taskStore.currentPage);
-  totalPages$ = signal(this.taskStore.totalPages);
+  pagination = {
+    currentPage: this.taskStore.currentPage,
+    pageLength: this.taskStore.pageLength,
+    totalDataLength: this.taskStore.totalRecords,
+  };
 
-  filterForm!: FormGroup;
-  pageSize = 5; // Default page size
+  filterValues: {
+    priority: string;
+    due_date: string[];
+  } = {
+    priority: "",
+    due_date: [],
+  };
+  showModal = false;
+  showDeleteModal = false;
+  showFilters = false;
+
+  priorities$: ListItem[] =
+    this.metaStore.priorities?.map((v) => ({
+      content: v,
+      selected: false,
+    })) || [];
+
+  constructor(protected modalService: ModalService) {}
 
   ngOnInit(): void {
-    console.log("TaskListComponent initialized");
-    this.filterForm = this.fb.group({
-      priority: [""], // Dropdown for priority filter
-      due_date: [""], // Date picker
-    });
     // Automatically update the component when store data changes
     autorun(() => {
       this.tasks$.set(this.taskStore.tasks);
-      this.totalRecords$.set(this.taskStore.totalRecords);
-      this.currentPage$.set(this.taskStore.currentPage);
-      this.totalPages$.set(this.taskStore.totalPages);
+      this.pagination.totalDataLength = this.taskStore.totalRecords;
+      this.pagination.currentPage = this.taskStore.currentPage;
+      this.pagination.pageLength = this.taskStore.pageLength;
     });
-    // Fetch initial task list
     this.fetchTasks();
-    this.init();
   }
 
-  fetchTasks(page = 1): void {
-    const filters = this.filterForm.value;
+  fetchTasks(): void {
     try {
-      this.taskService.getTasks({ ...filters, page, limit: this.pageSize });
+      this.loading = true;
+      this.taskService.getTasks({
+        ...this.filterValues,
+        page: this.pagination.currentPage,
+        limit: this.pagination.pageLength,
+      });
     } catch (e) {
       console.error("❌ Error fetching tasks:", e);
+    } finally {
+      this.loading = false;
     }
   }
 
-  // onFilter(): void {
-  //   this.fetchTasks(); // Fetch tasks based on filters
-  // }
-
-  // onPageChange(event: any): void {
-  //   this.fetchTasks(event.page);
-  // }
-
-  @Input() showSelectionColumn = true;
-  @Input() enableSingleSelect = false;
-  @Input() striped = true;
-  @Input() isDataGrid = false;
-  @Input() noData = false;
-  @Input() stickyHeader = false;
-  @Input() skeleton = false;
-
-  model = new TableModel();
-  displayedCountries = ["US", "France", "Argentina", "Japan"];
-  searchValue = "";
-
-  dataset = [
-    [
-      new TableItem({ data: "800" }),
-      new TableItem({ data: "East Sadye" }),
-      new TableItem({ data: "Store" }),
-      new TableItem({ data: "US" }),
-    ],
-    [
-      new TableItem({ data: "500" }),
-      new TableItem({ data: "Lueilwitzview" }),
-      new TableItem({ data: "Store" }),
-      new TableItem({ data: "US" }),
-    ],
-    [
-      new TableItem({ data: "120" }),
-      new TableItem({ data: "East Arcelyside" }),
-      new TableItem({ data: "Store" }),
-      new TableItem({ data: "France" }),
-    ],
-    [
-      new TableItem({ data: "119" }),
-      new TableItem({ data: "West Dylan" }),
-      new TableItem({ data: "Store" }),
-      new TableItem({ data: "Argentina" }),
-    ],
-    [
-      new TableItem({ data: "54" }),
-      new TableItem({ data: "Brandynberg" }),
-      new TableItem({ data: "Store" }),
-      new TableItem({ data: "Japan" }),
-    ],
-    [
-      new TableItem({ data: "15" }),
-      new TableItem({ data: "Stoltenbergport" }),
-      new TableItem({ data: "Store" }),
-      new TableItem({ data: "Canada" }),
-    ],
-    [
-      new TableItem({ data: "12" }),
-      new TableItem({ data: "Rheabury" }),
-      new TableItem({ data: "Store" }),
-      new TableItem({ data: "US" }),
-    ],
-  ];
-
-  filterNodeNames(searchString: string) {
-    this.searchValue = searchString;
+  onFilterPriority(event): void {
+    this.filterValues.priority = event.content;
+    this.fetchTasks(); // Fetch tasks based on filters
   }
 
-  overflowOnClick = (event: any) => {
-    event.stopPropagation();
-  };
+  onFilterDueDate(event): void {
+    if (event.length > 1) {
+      const date1 = new Date(event[0]).toLocaleDateString("en-US");
+      const date2 = new Date(event[1]).toLocaleDateString("en-US");
+      this.filterValues.due_date = [date1, date2];
+      this.fetchTasks(); // Fetch tasks based on filters}
+    }
+  }
 
-  init() {
-    this.model.header = [
-      new TableHeaderItem({
-        data: "Title",
-      }),
-      new TableHeaderItem({
-        data: "Description",
-      }),
-      new TableHeaderItem({
-        data: "Priority",
-      }),
-      new TableHeaderItem({
-        data: "Status",
-      }),
-      new TableHeaderItem({
-        data: "Due Date",
-      }),
-      new TableHeaderItem({
-        data: "Author",
-      }),
-      new TableHeaderItem({
-        data: "Actions",
-      }),
-    ];
+  onAddTask() {
+    this.showModal = true;
+  }
 
-    this.model.data = this.dataset;
+  canUndo(task: Task) {
+    if (task.updatedAt) {
+      const FIVE_MINUTES = 5 * 60 * 1000;
+      const lastUpdated = new Date(task.updatedAt).getTime();
+      if (Date.now() - lastUpdated < FIVE_MINUTES) {
+        return !!task?.showUndoButton;
+      }
+    }
+    return false;
+  }
 
-    this.model.isRowFiltered = (index: number) => {
-      const nodeName = this.model.row(index)[1].data;
-      const countryName = this.model.row(index)[3].data;
-      return (
-        !nodeName.toLowerCase().includes(this.searchValue.toLowerCase()) ||
-        !this.displayedCountries.includes(countryName)
-      );
-    };
+  onUndo(task: Task) {
+    this.taskService.undoTask(task.id);
+  }
+
+  onCloseModal() {
+    this.showModal = false;
+    this.taskToEdit = null;
+    this.showDeleteModal = false;
+  }
+
+  fromNow(date?: string) {
+    return date ? getTimeAgoString(date) : "-";
+  }
+
+  onEdit(task) {
+    this.showModal = true;
+    this.taskToEdit = task;
+  }
+
+  onDelete(task) {
+    this.showDeleteModal = true;
+    this.taskToEdit = task;
+  }
+
+  selectPage(page: number) {
+    this.pagination.currentPage = page;
+    this.fetchTasks();
+  }
+
+  resetDueDateFilters() {
+    this.filterValues.due_date = [];
+    this.fetchTasks();
+  }
+
+  formatDate(date?: string) {
+    return date
+      ? new Date(date).toLocaleDateString("en-US", {
+          dateStyle: "medium",
+        })
+      : "-";
+  }
+
+  capitalizeText(word?: string): string {
+    return word ? capitalize(word) : "-";
   }
 }

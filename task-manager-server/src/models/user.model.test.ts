@@ -43,7 +43,7 @@ describe("User Model", () => {
         username: "uniqueuser",
         password: "anotherpassword",
         role: "admin",
-      })
+      }),
     ).rejects.toThrow();
   });
 
@@ -53,7 +53,7 @@ describe("User Model", () => {
         username: "testuser4",
         password: "password",
         role: null,
-      })
+      }),
     ).rejects.toThrow();
   });
 });

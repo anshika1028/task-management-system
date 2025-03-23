@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { observable, action, computed, makeObservable } from 'mobx';
+import { Injectable } from "@angular/core";
+import { observable, action, computed, makeObservable } from "mobx";
 import { Router } from "@angular/router";
 
 interface User {
@@ -9,7 +9,7 @@ interface User {
 }
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class UserStore {
   @observable user: User | null = null;
@@ -23,7 +23,7 @@ export class UserStore {
    * ✅ Load user from localStorage (persist session)
    */
   private loadUserFromStorage() {
-    const storedUser = localStorage.getItem('user');
+    const storedUser = localStorage.getItem("user");
     if (storedUser) {
       this.user = JSON.parse(storedUser);
     }
@@ -34,7 +34,7 @@ export class UserStore {
    */
   @action setUser(user: User) {
     this.user = user;
-    localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem("user", JSON.stringify(user));
   }
 
   /**
@@ -42,10 +42,9 @@ export class UserStore {
    */
   @action logout() {
     this.user = null;
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
     this.router.navigate(["/login"]);
-
   }
 
   /**
@@ -59,7 +58,7 @@ export class UserStore {
    * ✅ Check if user is an Admin
    */
   @computed get isAdmin(): boolean {
-    return this.user?.role === 'admin';
+    return this.user?.role === "admin";
   }
 
   /**

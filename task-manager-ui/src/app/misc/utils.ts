@@ -8,7 +8,7 @@ export function getTimeAgoString(dateObj?: string | Date) {
    */
 
   if (!dateObj) {
-    return '-';
+    return "-";
   }
 
   const now = new Date().getTime();
@@ -20,17 +20,27 @@ export function getTimeAgoString(dateObj?: string | Date) {
   const diffInMonth = Math.round(diffInDay / 30);
   const diffInYear = Math.round(diffInMonth / 12);
 
-  if(diffInYear > 0) {
-    return `${diffInYear} year${diffInYear === 1 ? '' : 's'} ago`;
+  if (diffInYear > 0) {
+    return `${diffInYear} year${diffInYear === 1 ? "" : "s"} ago`;
   } else if (diffInMonth > 0) {
-    return `${diffInMonth} month${diffInMonth === 1 ? '' : 's'} ago`;
+    return `${diffInMonth} month${diffInMonth === 1 ? "" : "s"} ago`;
   } else if (diffInDay > 0) {
-    return `${diffInDay} day${diffInDay === 1 ? '' : 's'} ago`;
+    return `${diffInDay} day${diffInDay === 1 ? "" : "s"} ago`;
   } else if (diffInHour > 0) {
-    return `${diffInHour} hour${diffInHour === 1 ? '' : 's'} ago`;
+    return `${diffInHour} hour${diffInHour === 1 ? "" : "s"} ago`;
   } else if (diffInMin > 0) {
-    return `${diffInMin} min${diffInMin === 1 ? '' : 's'} ago`;
+    return `${diffInMin} min${diffInMin === 1 ? "" : "s"} ago`;
   } else {
-    return 'Just now';
+    return "Just now";
   }
+}
+
+/**
+ * Capitalizes the first letter of the given word.
+ * @param word - The word to capitalize.
+ * @returns The word with the first letter capitalized.
+ */
+export function capitalize(word: string): string {
+  if (!word) return word;
+  return word.charAt(0).toUpperCase() + word.slice(1);
 }

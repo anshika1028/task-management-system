@@ -15,7 +15,7 @@ export class AppComponent implements OnInit {
 
   constructor(
     public metaStore: MetaStore,
-    private metaService: MetaService
+    private metaService: MetaService,
   ) {}
 
   ngOnInit(): void {

@@ -1,58 +1,64 @@
-<div class="flex flex-col items-center justify-center gap-4">
-  <div *ngIf="error" class="text-red">{{ error }}</div>
-  <div class="w-full">
-    <form
-      [formGroup]="loginForm"
-      (ngSubmit)="onSubmit()"
-      class="flex flex-col gap-6"
-    >
-      <div>
-        <cds-text-label
-          [invalid]="
-            submitted && loginForm.get('username')?.errors ? true : false
-          "
-          [invalidText]="getErrors('username')"
-          [skeleton]="loading"
-        >
-          Username
-          <input
-            cdsText
-            formControlName="username"
+<div class="border border-gray-300 border-solid p-6 py-8 rounded bg-white">
+  <h5 class="text-2xl font-semibold mb-6 text-center w-full fhd:hidden">
+    Task Management System
+  </h5>
+  <h5 class="text-xl font-semibold my-4">Login</h5>
+  <div class="flex flex-col items-center justify-center gap-4">
+    <div *ngIf="error" class="text-red">{{ error }}</div>
+    <div class="w-full">
+      <form
+        [formGroup]="loginForm"
+        (ngSubmit)="onSubmit()"
+        class="flex flex-col gap-6"
+      >
+        <div>
+          <cds-text-label
             [invalid]="
               submitted && loginForm.get('username')?.errors ? true : false
             "
-          />
-        </cds-text-label>
-      </div>
-      <div>
-        <cds-password-label
-          [invalid]="
-            submitted && loginForm.get('password')?.errors ? true : false
-          "
-          [invalidText]="getErrors('password')"
-          [skeleton]="loading"
-        >
-          Password
-          <input
-            cdsPassword
-            type="password"
-            formControlName="password"
+            [invalidText]="getErrors('username')"
+            [skeleton]="loading"
+          >
+            Username
+            <input
+              cdsText
+              formControlName="username"
+              [invalid]="
+                submitted && loginForm.get('username')?.errors ? true : false
+              "
+            />
+          </cds-text-label>
+        </div>
+        <div>
+          <cds-password-label
             [invalid]="
               submitted && loginForm.get('password')?.errors ? true : false
             "
-          />
-        </cds-password-label>
+            [invalidText]="getErrors('password')"
+            [skeleton]="loading"
+          >
+            Password
+            <input
+              cdsPassword
+              type="password"
+              formControlName="password"
+              [invalid]="
+                submitted && loginForm.get('password')?.errors ? true : false
+              "
+            />
+          </cds-password-label>
+        </div>
+        <div>
+          <button [cdsButton]="'primary'" [size]="'md'" type="submit">
+            Login
+          </button>
+        </div>
+      </form>
+      <div class="my-2">
+        <a cdsLink [href]="'/register'" class="font-normal"
+          >New user? Register now!</a
+        >
       </div>
-      <div>
-        <button [cdsButton]="'primary'" [size]="'md'" type="submit">
-          Login
-        </button>
-      </div>
-    </form>
-    <div>
-      <a cdsLink [href]="'/register'" class="font-normal"
-        >New user? Register now!</a
-      >
     </div>
   </div>
 </div>

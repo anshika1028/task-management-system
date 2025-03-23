@@ -1,12 +1,12 @@
 <div cdsTheme="g90">
   <cds-header name="Task Manager" brand="" [route]="['/']">
     <cds-header-navigation>
-      <cds-header-item [route]="['home']">Home</cds-header-item>
+      <cds-header-item [route]="['tasks']">Home</cds-header-item>
       <cds-header-item [route]="['about-us']">About us</cds-header-item>
     </cds-header-navigation>
 
     <cds-header-global class="flex items-center justify-end gap-2">
-      <div>{{ username }}</div>
+      <div>{{ username }} {{ isAdmin ? "(Admin)" : "" }}</div>
       <cds-header-action #secondAction [description]="username" class="mr-2">
         <ng-icon name="heroUserSolid" size="20" class="text-white"></ng-icon>
       </cds-header-action>

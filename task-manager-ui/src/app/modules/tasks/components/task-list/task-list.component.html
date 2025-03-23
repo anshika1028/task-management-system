@@ -1,55 +1,218 @@
-<div class="container mx-auto p-10 space-y-6">
-  {{ tasks$() }}
-  <cds-table-container>
-    <cds-table-header>
-      <h4 cdsTableHeaderTitle>Manage Tasks</h4>
-      <p cdsTableHeaderDescription>
-        Manage your tasks here. Search for your task and get started with your
-        work.
-      </p>
-    </cds-table-header>
-
-    <cds-table
-      [model]="model"
-      [sortable]="false"
-      [skeleton]="skeleton"
-      [showSelectionColumn]="showSelectionColumn"
-      [enableSingleSelect]="enableSingleSelect"
-      [stickyHeader]="stickyHeader"
-      [striped]="striped"
-      [isDataGrid]="isDataGrid"
-    >
-      <ng-content></ng-content>
-    </cds-table>
-  </cds-table-container>
-
-  <!-- <ng-template #templateRef>
-    <div style="padding: 0 1rem" (click)="overflowOnClick($event)">
-      <div style="padding-top: 0.5rem; color: grey">Countries shown</div>
-      <cds-checkbox
-        [checked]="displayedCountries.includes('US')"
-        (checkedChange)="filterCountries('US', $event)"
-      >
-        US
-      </cds-checkbox>
-      <cds-checkbox
-        [checked]="displayedCountries.includes('France')"
-        (checkedChange)="filterCountries('France', $event)"
-      >
-        France
-      </cds-checkbox>
-      <cds-checkbox
-        [checked]="displayedCountries.includes('Argentina')"
-        (checkedChange)="filterCountries('Argentina', $event)"
-      >
-        Argentina
-      </cds-checkbox>
-      <cds-checkbox
-        [checked]="displayedCountries.includes('Japan')"
-        (checkedChange)="filterCountries('Japan', $event)"
-      >
-        Japan
-      </cds-checkbox>
+<section class="container mx-auto p-10 space-y-6">
+  @if (loading) {
+    <div class="skeleton-text">
+      <cds-skeleton-text [lines]="20"></cds-skeleton-text>
     </div>
-  </ng-template> -->
-</div>
+  } @else {
+    <div class="flex items-start justify-between flex-wrap gap-4">
+      <div>
+        <h4 class="font-semibold text-lg">Manage Tasks</h4>
+        <p>
+          Manage your tasks here. Search for your task and get started with your
+          work.
+        </p>
+      </div>
+      <div class="space-y-4 flex-1">
+        <div class="flex items-center justify-end">
+          <button cdsButton="primary" size="sm" (click)="onAddTask()">
+            <div class="flex gap-1 items-center justify-center">
+              <ng-icon name="heroPlusSolid" size="20"></ng-icon>
+              <span>Add</span>
+            </div>
+          </button>
+        </div>
+
+        <div class="flex justify-end items-center gap-2">
+          <button
+            cdsButton="ghost"
+            size="sm"
+            (click)="showFilters = !showFilters"
+          >
+            <span>Filters</span>
+            @if (showFilters) {
+              <ng-icon name="heroChevronUpSolid" size="20"></ng-icon>
+            } @else {
+              <ng-icon name="heroChevronDownSolid" size="20"></ng-icon>
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+    @if (showFilters) {
+      <div class="flex items-center justify-end gap-4">
+        <cds-combo-box
+          class="w-[200px]"
+          [items]="priorities$"
+          [size]="'sm'"
+          placeholder="Priority"
+          (selected)="onFilterPriority($event)"
+          (clear)="onFilterPriority($event)"
+        >
+          <cds-dropdown-list></cds-dropdown-list>
+        </cds-combo-box>
+
+        <cds-date-picker
+          [size]="'sm'"
+          [range]="true"
+          [value]="filterValues.due_date"
+          [placeholder]="'Due date'"
+          [dateFormat]="'m/d/Y'"
+          (valueChange)="onFilterDueDate($event)"
+        >
+        </cds-date-picker>
+        <button cdsButton="ghost" size="sm" (click)="resetDueDateFilters()">
+          <div class="flex gap-1 items-center">
+            <ng-icon name="heroXMarkSolid" size="16"></ng-icon>
+            Reset Dates
+          </div>
+        </button>
+      </div>
+    }
+
+    <div class="font-semibold my-2 flex justify-end">
+      {{ pagination.totalDataLength }} tasks found
+    </div>
+    <cds-structured-list class="results-list">
+      <cds-list-row>
+        <cds-list-column class="font-semibold"> Task </cds-list-column>
+        <cds-list-column class="font-semibold"> Status </cds-list-column>
+        <cds-list-column class="font-semibold">
+          <div class="flex items-center gap-1">
+            <!-- <ng-icon name="heroChartBarSolid" size="16" title="Priority" /> -->
+            <span>Priority</span>
+          </div>
+        </cds-list-column>
+        <cds-list-column class="font-semibold">
+          <div class="flex items-center gap-1">
+            <!-- <ng-icon name="heroClockSolid" size="16" title="Due by" />-->
+            <span> Due Date</span>
+          </div>
+        </cds-list-column>
+        <cds-list-column class="font-semibold">
+          <div class="flex items-center gap-1">
+            <!-- <ng-icon name="heroUserSolid" size="16" title="Author" /> -->
+            <span>Author </span>
+          </div></cds-list-column
+        >
+        <cds-list-column class="font-semibold">
+          <div class="flex items-center gap-1">
+            <span>Updated At</span>
+          </div>
+        </cds-list-column>
+        <cds-list-column class="font-semibold w-[150px]">
+          Actions
+        </cds-list-column>
+      </cds-list-row>
+
+      @for (task of tasks$(); track $index) {
+        <cds-list-row class="even:bg-shade-light hover:bg-gray-100">
+          <cds-list-column>
+            <div>
+              <h5 class="font-semibold text-base">
+                {{ task.title }}
+              </h5>
+              <p>
+                {{ task.description }}
+              </p>
+            </div>
+          </cds-list-column>
+          <cds-list-column>
+            <cds-tag
+              [type]="task?.completed === true ? 'green' : 'magenta'"
+              class="rounded first:ml-0"
+            >
+              {{ task?.completed === true ? "Completed" : "Pending" }}
+            </cds-tag>
+          </cds-list-column>
+          <cds-list-column>
+            <cds-tag
+              [type]="
+                task?.priority === 'high'
+                  ? 'red'
+                  : task?.priority === 'low'
+                    ? 'gray'
+                    : 'cyan'
+              "
+              class="rounded first:ml-0"
+            >
+              {{ capitalizeText(task?.priority) }}
+            </cds-tag>
+          </cds-list-column>
+          <cds-list-column>
+            <div>
+              {{ formatDate(task?.due_date) }}
+            </div>
+          </cds-list-column>
+          <cds-list-column>
+            <span>{{ task?.username }}</span>
+          </cds-list-column>
+          <cds-list-column>
+            {{ fromNow(task?.updatedAt) }}
+            <div class="text-xs">({{ formatDate(task?.updatedAt) }})</div>
+          </cds-list-column>
+          <cds-list-column class="w-[150px]">
+            <div class="flex items-center gap-4">
+              <div>
+                <button size="sm" (click)="onEdit(task)">
+                  <div class="flex gap-1 items-center">
+                    <ng-icon name="heroPencilSolid" size="16"></ng-icon>
+                    <span>Edit</span>
+                  </div>
+                </button>
+                @if (canUndo(task)) {
+                  <div>
+                    <button size="sm" (click)="onUndo(task)">
+                      <div class="flex gap-1 items-center">
+                        <ng-icon
+                          name="heroArrowUturnLeftSolid"
+                          size="16"
+                        ></ng-icon>
+                        <span>Undo</span>
+                      </div>
+                    </button>
+                  </div>
+                }
+              </div>
+              @if (isAdmin) {
+                <button size="sm" (click)="onDelete(task)" class="text-red-500">
+                  <div class="flex gap-1 items-center">
+                    <ng-icon name="heroTrashSolid" size="16"></ng-icon>
+                    <span>Delete</span>
+                  </div>
+                </button>
+              }
+            </div>
+          </cds-list-column>
+        </cds-list-row>
+      }
+    </cds-structured-list>
+
+    @if (pagination.totalDataLength > 0) {
+      <cds-pagination
+        [model]="pagination"
+        (selectPage)="selectPage($event)"
+      ></cds-pagination>
+    } @else {
+      <div class="flex items-center justify-center">
+        <p>No tasks available. Please create one to get started.</p>
+      </div>
+    }
+    @if (showDeleteModal && taskToEdit) {
+      <app-task-delete
+        (closeModalClick)="onCloseModal()"
+        [task]="taskToEdit"
+      ></app-task-delete>
+    }
+
+    @if (showModal) {
+      @if (taskToEdit) {
+        <app-task-form
+          (closeModalClick)="onCloseModal()"
+          [task]="taskToEdit"
+        ></app-task-form>
+      } @else {
+        <app-task-form (closeModalClick)="onCloseModal()"></app-task-form>
+      }
+    }
+  }
+</section>

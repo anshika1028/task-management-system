@@ -27,37 +27,33 @@ export const verifyToken = (
 
       // Ensure `decoded` is correctly typed
       if (typeof decoded === "object" && "id" in decoded && "role" in decoded) {
-    
         req.userId = decoded.id as number;
         req.userRole = decoded.role as string;
-
-        console.log("🔐 Decoded Token:", decoded);
-    console.log("✅ Set req.userId:", req.userId);
-    console.log("✅ Set req.userRole:", req.userRole);
 
         next();
       } else {
         throw new ApiError(401, "Invalid token");
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     if (!(error instanceof ApiError)) {
-      throw new ApiError(500, "Error verifying token");
+      throw new ApiError(500, "Error verifying token", error);
     }
     throw error;
   }
 };
 
-export const isAdmin = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+export const isAdmin = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): void => {
   try {
-    console.log("🛡️ Checking Admin Role -> User ID:", req.userId, "Role:", req.userRole);
-
     if (!req.userId || req.userRole !== "admin") {
       throw new ApiError(403, "Require Admin Role");
     }
     next();
-  } catch (error) {
-    console.error("❌ Error checking admin role:", error);
-    next(new ApiError(500, "Error checking admin role"));
+  } catch (error: any) {
+    next(new ApiError(500, "Error checking admin role", error));
   }
 };

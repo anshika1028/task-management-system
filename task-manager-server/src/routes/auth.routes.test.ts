@@ -28,7 +28,7 @@ describe("Auth Routes", () => {
     mockRegister.mockImplementation(
       (req: Request, res: Response, next: NextFunction) => {
         res.status(201).json({ message: "Registered successfully" });
-      }
+      },
     );
 
     // Act
@@ -48,7 +48,7 @@ describe("Auth Routes", () => {
     mockLogin.mockImplementation(
       (req: Request, res: Response, next: NextFunction) => {
         res.status(200).json({ message: "Logged in successfully" });
-      }
+      },
     );
 
     // Act
@@ -68,7 +68,7 @@ describe("Auth Routes", () => {
     mockRegister.mockImplementation(
       (req: Request, res: Response, next: NextFunction) => {
         next(new Error("Register error"));
-      }
+      },
     );
 
     app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
@@ -92,7 +92,7 @@ describe("Auth Routes", () => {
     mockLogin.mockImplementation(
       (req: Request, res: Response, next: NextFunction) => {
         next(new Error("Login error"));
-      }
+      },
     );
 
     app.use((err: Error, req: Request, res: Response, next: NextFunction) => {

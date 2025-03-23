@@ -33,7 +33,7 @@ describe("Auth Middleware", () => {
       (jwt.verify as jest.Mock).mockImplementation(
         (token, secret, callback) => {
           callback(null, { id: 1, role: "user" });
-        }
+        },
       );
 
       // Act
@@ -43,7 +43,7 @@ describe("Auth Middleware", () => {
       expect(jwt.verify).toHaveBeenCalledWith(
         "validtoken",
         authConfig.secret,
-        expect.any(Function)
+        expect.any(Function),
       );
       expect(mockRequest.userId).toBe(1);
       expect(mockRequest.userRole).toBe("user");
@@ -68,7 +68,7 @@ describe("Auth Middleware", () => {
       (jwt.verify as jest.Mock).mockImplementation(
         (token, secret, callback) => {
           callback(new Error("Invalid token"), null);
-        }
+        },
       );
 
       // Act
@@ -88,7 +88,7 @@ describe("Auth Middleware", () => {
       (jwt.verify as jest.Mock).mockImplementation(
         (token, secret, callback) => {
           callback(null, {});
-        }
+        },
       );
 
       // Act

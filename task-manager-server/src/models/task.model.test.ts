@@ -80,7 +80,7 @@ describe("Task Model", () => {
         description: "Invalid description",
         completed: false,
         user_id: user.id,
-      })
+      }),
     ).rejects.toThrow();
   });
 });

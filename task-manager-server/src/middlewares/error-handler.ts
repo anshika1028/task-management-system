@@ -8,9 +8,9 @@ const errorHandler = (
   err: any,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
-  logger.error("❌ Error:", err.message);
+  logger.error("❌ Erro:::::::::", err, err.message);
 
   // If the error has a status code, use it; otherwise, default to 500
   const statusCode = err.status || 500;

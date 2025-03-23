@@ -11,7 +11,7 @@ import { UserStore } from "../stores/user.store";
 export class AuthGuard implements CanActivate {
   constructor(
     private router: Router,
-    private userStore: UserStore
+    private userStore: UserStore,
   ) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {

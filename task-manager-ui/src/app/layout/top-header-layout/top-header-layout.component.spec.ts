@@ -1,8 +1,7 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { TopHeaderLayoutComponent } from "./top-header-layout.component";
 
-import { TopHeaderLayoutComponent } from './top-header-layout.component';
-
-describe('TopHeaderLayoutComponent', () => {
+describe("TopHeaderLayoutComponent", () => {
   let component: TopHeaderLayoutComponent;
   let fixture: ComponentFixture<TopHeaderLayoutComponent>;
 
@@ -16,7 +15,7 @@ describe('TopHeaderLayoutComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });

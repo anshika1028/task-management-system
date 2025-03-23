@@ -1,31 +1,29 @@
 import {
-  Table,
+  AutoIncrement,
+  BelongsTo,
   Column,
-  Model,
   DataType,
   ForeignKey,
-  BelongsTo,
+  Model,
+  PrimaryKey,
+  Table,
 } from "sequelize-typescript";
+import Task from "./task.model";
 import User from "./user.model";
 
 @Table({
   timestamps: true,
-  indexes: [
-    {
-      name: "idx_task_priority", // ✅ Single-column index for filtering by priority
-      fields: ["priority"],
-    },
-    {
-      name: "idx_task_due_date", // ✅ Single-column index for filtering by due_date
-      fields: ["due_date"],
-    },
-    {
-      name: "idx_task_priority_due_date", // ✅ Composite index for filtering by both
-      fields: ["priority", "due_date"],
-    },
-  ],
 })
-class Task extends Model {
+class TaskHistory extends Model {
+  @PrimaryKey
+  @AutoIncrement
+  @Column({ type: DataType.INTEGER })
+  history_id!: number;
+
+  @ForeignKey(() => Task)
+  @Column({ type: DataType.INTEGER, allowNull: false })
+  id!: number;
+
   @Column({ type: DataType.ENUM("low", "medium", "high"), allowNull: false })
   priority!: string;
 
@@ -49,4 +47,4 @@ class Task extends Model {
   user!: User;
 }
 
-export default Task;
+export default TaskHistory;

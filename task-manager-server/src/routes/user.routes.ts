@@ -27,10 +27,10 @@ router.get(
     try {
       const users = await User.findAll();
       res.json({ success: true, users });
-    } catch (error) {
-      throw new ApiError(500, "Error fetching users");
+    } catch (error: any) {
+      throw new ApiError(500, "Error fetching users", error);
     }
-  }
+  },
 );
 
 export default router;

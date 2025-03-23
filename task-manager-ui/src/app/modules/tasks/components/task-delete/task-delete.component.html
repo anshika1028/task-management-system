@@ -1,0 +1,50 @@
+<cds-modal [size]="'sm'" [open]="true" (overlaySelected)="closeModal()">
+  <cds-modal-header (closeSelect)="closeModal()">
+    <h3 cdsModalHeaderHeading>Delete Task</h3>
+  </cds-modal-header>
+  @if (submitted) {
+    @if (successMsg) {
+      <section cdsModalContent>
+        <div>
+          <span class="font-semibold">{{ successMsg }}</span>
+        </div>
+      </section>
+      <cds-modal-footer>
+        <button [cdsButton]="'primary'" [size]="'sm'" (click)="closeModal()">
+          Ok
+        </button>
+      </cds-modal-footer>
+    } @else if (error) {
+      <section cdsModalContent>
+        <div>
+          <span class="font-semibold">{{ error }}</span>
+        </div>
+      </section>
+      <cds-modal-footer>
+        <button [cdsButton]="'primary'" [size]="'sm'" (click)="closeModal()">
+          Ok
+        </button>
+      </cds-modal-footer>
+    }
+  } @else {
+    <section cdsModalContent [hasForm]="true">
+      <div>
+        Are you sure you want to delete :
+        <span class="font-semibold">{{ task.title }}</span>
+      </div>
+    </section>
+    <cds-modal-footer>
+      <button
+        [cdsButton]="'secondary'"
+        [size]="'sm'"
+        type="submit"
+        (click)="closeModal()"
+      >
+        No
+      </button>
+      <button [cdsButton]="'primary'" [size]="'sm'" (click)="onSubmit()">
+        Yes
+      </button>
+    </cds-modal-footer>
+  }
+</cds-modal>

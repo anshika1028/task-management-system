@@ -1,1 +1,143 @@
-<p>task-form works!</p>
+<cds-modal [size]="'md'" [open]="true" (overlaySelected)="closeModal()">
+  <cds-modal-header (closeSelect)="closeModal()">
+    <h3 cdsModalHeaderHeading>
+      @if (this.task.id === 0) {
+        Create
+      } @else {
+        Update
+      }
+      Task
+    </h3>
+  </cds-modal-header>
+  <!-- @if (submitted) {
+    @if (successMsg) {
+      <section cdsModalContent>
+        <div>
+          <span class="font-semibold">{{ successMsg }}</span>
+        </div>
+      </section>
+      <cds-modal-footer>
+        <button [cdsButton]="'primary'" [size]="'sm'" (click)="closeModal()">
+          Ok
+        </button>
+      </cds-modal-footer>
+    } @else if (error) {
+      <section cdsModalContent>
+        <div>
+          <span class="font-semibold text-red-500">{{ error }}</span>
+        </div>
+      </section>
+      <cds-modal-footer>
+        <button [cdsButton]="'primary'" [size]="'sm'" (click)="closeModal()">
+          Ok
+        </button>
+      </cds-modal-footer>
+    }
+  } @else { -->
+  <form [formGroup]="taskCreateForm" class="flex flex-col gap-6">
+    <section cdsModalContent [hasForm]="true" class="space-y-6">
+      <div>
+        <cds-text-label
+          [invalid]="
+            submitted && taskCreateForm.get('title')?.errors ? true : false
+          "
+          [invalidText]="getErrors('title')"
+          [skeleton]="loading"
+        >
+          Title
+          <input
+            cdsText
+            [size]="'sm'"
+            formControlName="title"
+            [invalid]="
+              submitted && taskCreateForm.get('title')?.errors ? true : false
+            "
+          />
+        </cds-text-label>
+      </div>
+      <div>
+        <cds-textarea-label>
+          Description
+          <textarea
+            cdsTextArea
+            formControlName="description"
+            class="textarea-field w-full"
+            [invalid]="
+              submitted && taskCreateForm.get('description')?.errors
+                ? true
+                : false
+            "
+          ></textarea>
+        </cds-textarea-label>
+      </div>
+      <div class="flex items-center justify-between gap-6">
+        <div class="flex-1">
+          <cds-radio-group
+            formControlName="priority"
+            [legend]="'Priority'"
+            [invalid]="
+              submitted && taskCreateForm.get('priority')?.errors ? true : false
+            "
+            [invalidText]="getErrors('priority')"
+            ariaLabel="radiogroup"
+          >
+            @for (priority of priorities; track priority) {
+              <cds-radio [value]="priority">{{
+                commonLabels[priority]
+              }}</cds-radio>
+            }
+          </cds-radio-group>
+        </div>
+        <div class="flex-1">
+          <cds-text-label
+            [invalid]="
+              submitted && taskCreateForm.get('due_date')?.errors ? true : false
+            "
+            [invalidText]="getErrors('due_date')"
+            [skeleton]="loading"
+          >
+            Due date
+            <input
+              [size]="'sm'"
+              cdsText
+              formControlName="due_date"
+              [invalid]="
+                submitted && taskCreateForm.get('due_date')?.errors
+                  ? true
+                  : false
+              "
+              mwlFlatpickr
+              [altInput]="true"
+              [convertModelValue]="true"
+              [value]="task.due_date"
+              [options]="disabledConfig"
+            />
+          </cds-text-label>
+        </div>
+      </div>
+      @if (task.id !== 0) {
+        <div>
+          <cds-select formControlName="completed" [label]="'Mark as complete'">
+            <option value="default" disabled>Choose an option</option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </cds-select>
+        </div>
+      }
+    </section>
+    <cds-modal-footer>
+      <button [cdsButton]="'secondary'" [size]="'sm'" (click)="resetForm()">
+        Reset
+      </button>
+      <button
+        [cdsButton]="'primary'"
+        [size]="'sm'"
+        type="submit"
+        (click)="onSubmit()"
+      >
+        Submit
+      </button>
+    </cds-modal-footer>
+  </form>
+  <!-- } -->
+</cds-modal>

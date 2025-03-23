@@ -3,6 +3,7 @@ import {
   createTask,
   deleteTask,
   getTasks,
+  undoTask,
   updateTask,
 } from "../controllers/task.controller";
 import { isAdmin, verifyToken } from "../middlewares/auth.middleware";
@@ -112,6 +113,26 @@ router.post("/", verifyToken, createTask);
  *         description: Task updated successfully
  */
 router.put("/:id", verifyToken, updateTask);
+
+/**
+ * @swagger
+ * /api/tasks/{id}/undo:
+ *   put:
+ *     summary: Undo changes in a task
+ *     tags: [Tasks]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Task updated successfully
+ */
+router.put("/:id/undo", verifyToken, undoTask);
 
 /**
  * @swagger

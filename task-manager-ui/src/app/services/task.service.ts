@@ -1,5 +1,8 @@
+import { formatDate } from "@angular/common";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import axios from "axios";
+import { firstValueFrom, throwError } from "rxjs";
+import { catchError, map } from "rxjs/operators";
 import { environment } from "../../environment";
 import { ERROR_LABELS } from "../constants/labels";
 import { MetaStore } from "../stores/meta.store";
@@ -13,9 +16,10 @@ export class TaskService {
   private apiUrl = `${environment.apiBaseUrl}/api/tasks`;
 
   constructor(
+    private http: HttpClient,
     private taskStore: TaskStore,
-    private metaStore: MetaStore, // ✅ Inject MetaStore to access public holidays
-    private userStore: UserStore // ✅ Inject UserStore to check user role
+    private metaStore: MetaStore,
+    private userStore: UserStore
   ) {}
 
   /**
@@ -23,43 +27,54 @@ export class TaskService {
    */
   async getTasks(values: {
     priority?: string;
-    due_date?: string;
+    due_date?: string[];
     page: number;
     limit: number;
   }) {
     try {
-      let params = `?page=${values.page}&limit=${values.limit}`;
-      if (values.priority) params += `&priority=${values.priority}`;
-      if (values.due_date) params += `&due_date=${values.due_date}`;
+      let params = new HttpParams()
+        .set("page", values.page)
+        .set("limit", values.limit);
 
-      console.log("in get task", `${this.apiUrl}${params}`);
+      if (values.priority) {
+        params = params.set("priority", values.priority);
+      }
 
-      const response = await axios.get(`${this.apiUrl}${params}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      if (values.due_date?.length) {
+        params = params.set("due_date", values.due_date.join(","));
+      }
+
+      const response$ = await this.http.get(this.apiUrl, { params }).subscribe({
+        next: (response: any) => {
+          if (response?.data) {
+            const data = response.data;
+            this.taskStore.setTasks(
+              data.tasks,
+              data.totalRecords,
+              data.currentPage,
+              data.pageLength
+            );
+            return data;
+          }
+        },
+        error: (error) => {
+          console.error("❌ Error fetching tasks:", error);
+          return throwError(() => error.error || ERROR_LABELS.NO_RECORDS_FOUND);
+        },
       });
 
-      this.taskStore.setTasks(
-        response.data.data.tasks,
-        response.data.data.totalRecords,
-        response.data.data.currentPage,
-        response.data.data.totalPages
-      );
-      return response.data.data;
-    } catch (error: any) {
-      console.error("❌ Error fetching tasks:", error);
-      return Promise.reject(
-        error.response?.data || ERROR_LABELS.NO_RECORDS_FOUND
-      );
+      return Promise.resolve(response$);
+    } catch (err) {
+      return Promise.reject(err);
     }
   }
 
   /**
    * ✅ Validate due_date (Prevent tasks on public holidays)
    */
-  isValidDueDate(dueDate: string): boolean {
-    const formattedDueDate = new Date(dueDate).toISOString().split("T")[0];
+  isValidDueDate(due_date: string): boolean {
     const publicHolidays = this.metaStore.publicHolidays;
-    return !publicHolidays.some((holiday) => holiday.date === formattedDueDate);
+    return !publicHolidays.some((holiday) => holiday.date === due_date);
   }
 
   /**
@@ -71,63 +86,84 @@ export class TaskService {
     priority: string;
     due_date: string;
   }) {
+    task.due_date = formatDate(new Date(task.due_date), "yyyy-MM-dd", "en-US");
+
     if (!this.isValidDueDate(task.due_date)) {
       return Promise.reject(ERROR_LABELS.INVALID_DATE);
     }
 
-    try {
-      const response = await axios.post(this.apiUrl, task, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+    const response$ = await this.http.post(this.apiUrl, task).subscribe({
+      next: (response: any) => {
+        if (response?.data?.task) {
+          const username = this.userStore.username;
+          this.taskStore.addTask(
+            Object.assign(response.data.task, { username })
+          );
+        }
+        return response?.data;
+      },
+      error: (error) => {
+        return throwError(() => error.error || "Error creating task");
+      },
+    });
 
-      this.taskStore.addTask(response.data.data.task);
-      return response.data.data;
-    } catch (error: any) {
-      console.error("❌ Error creating task:", error);
-      return Promise.reject(error.response?.data || "Error creating task");
-    }
+    return Promise.resolve(response$);
   }
 
   /**
    * ✅ Update an existing task
    */
   async updateTask(taskId: number, updatedTask: any) {
-    try {
-      const response = await axios.put(
-        `${this.apiUrl}/${taskId}`,
-        updatedTask,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
+    const response$ = this.http
+      .put<any>(`${this.apiUrl}/${taskId}`, updatedTask)
+      .pipe(
+        map((response) => {
+          this.taskStore.updateTask(response.data.task);
+          return response.data;
+        }),
+        catchError((error) => {
+          console.error("❌ Error updating task:", error);
+          return throwError(() => error.error || "Error updating task");
+        })
       );
 
-      this.taskStore.updateTask(response.data.data.task);
-      return response.data.data;
-    } catch (error: any) {
-      console.error("❌ Error updating task:", error);
-      return Promise.reject(error.response?.data || "Error updating task");
-    }
+    return await firstValueFrom(response$);
+  }
+
+  async undoTask(taskId: number) {
+    const response$ = this.http.put(`${this.apiUrl}/${taskId}/undo`, {}).pipe(
+      map((response: any) => {
+        this.taskStore.updateTask(response?.data?.task);
+        return response?.data;
+      }),
+      catchError((error) => {
+        console.error("❌ Error undo task:", error);
+        return throwError(() => error.error || "Error undo task");
+      })
+    );
+
+    return await firstValueFrom(response$);
   }
 
   /**
    * ✅ Delete a task (Admins only)
    */
   async deleteTask(taskId: number) {
-    // ✅ Check if user is an admin before deleting
     if (!this.userStore.isAdmin) {
       return Promise.reject(ERROR_LABELS.UNAUTHORIZED);
     }
 
-    try {
-      const response = await axios.delete(`${this.apiUrl}/${taskId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+    const response$ = this.http.delete<any>(`${this.apiUrl}/${taskId}`).pipe(
+      map((response) => {
+        this.taskStore.removeTask(taskId);
+        return response.data;
+      }),
+      catchError((error) => {
+        console.error("❌ Error deleting task:", error);
+        return throwError(() => error.error || ERROR_LABELS.UNAUTHORIZED);
+      })
+    );
 
-      this.taskStore.removeTask(taskId);
-      return response.data.data;
-    } catch (error: any) {
-      console.error("❌ Error deleting task:", error);
-      return Promise.reject(error.response?.data || ERROR_LABELS.UNAUTHORIZED);
-    }
+    return await firstValueFrom(response$);
   }
 }

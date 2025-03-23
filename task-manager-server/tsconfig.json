@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es2020",
     "module": "CommonJS",
-    "outDir": "./dist",  // ✅ Ensures compiled JS goes into "dist"
+    "outDir": "./dist", // ✅ Ensures compiled JS goes into "dist"
     "rootDir": "./src",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -13,9 +13,5 @@
     "emitDecoratorMetadata": true
   },
   "include": ["src/**/*.ts"],
-  "exclude": [
-    "node_modules",
-    "**/*.test.ts",
-    "**/*.spec.ts"
-  ]
+  "exclude": ["node_modules", "**/*.test.ts", "**/*.spec.ts"]
 }
