@@ -69,7 +69,13 @@ DB_NAME=
 DB_PORT=5432
 ```
 
-### 4. Setup public holiday table in postgress
+### 4. Run Dev Server
+
+```bash
+pnpm start
+```
+
+### 5. Setup public holiday table in postgress
 
 ```
 INSERT INTO public_holidays ("holiday_name", "date", "createdAt", "updatedAt") VALUES
@@ -85,13 +91,12 @@ INSERT INTO public_holidays ("holiday_name", "date", "createdAt", "updatedAt") V
 ('Christmas Day', '2025-12-25', NOW(), NOW());
 ```
 
-### 4. Run Dev Server
-
-```bash
-pnpm start
+### 6. Test the application on swagger : open below in the browser
+```
+http://localhost:3000/api-docs/
 ```
 
-### 5. Run with Docker
+### 6. Run with Docker
 
 ```bash
 docker-compose up --build
