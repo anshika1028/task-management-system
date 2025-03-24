@@ -31,6 +31,29 @@ task-manager/
 - PNPM (`npm install -g pnpm`)
 - Docker (for containerization)
 
+### Start PostgreSQL
+```
+docker-compose up -d
+```
+### Install Backend Dependencies & Start Server
+```
+cd backend
+npm install
+npm run dev
+```
+### Install Frontend Dependencies & Start Angular UI
+
+```
+npm install
+npm start
+```
+
+### open the app in local
+
+```
+http://localhost:4200/
+```
+
 ### Install All Workspaces
 
 ```bash

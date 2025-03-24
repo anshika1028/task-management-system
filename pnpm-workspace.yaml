@@ -1,3 +1,19 @@
 packages:
-  - "task-manager-ui"
-  - "task-manager-server"
+  - task-manager-ui
+  - task-manager-server
+ignoredBuiltDependencies:
+  - '@carbon/colors'
+  - '@carbon/feature-flags'
+  - '@carbon/grid'
+  - '@carbon/layout'
+  - '@carbon/motion'
+  - '@carbon/styles'
+  - '@carbon/themes'
+  - '@carbon/type'
+  - '@parcel/watcher'
+  - '@scarf/scarf'
+  - bcrypt
+  - carbon-components-angular
+  - esbuild
+  - lmdb
+  - msgpackr-extract
