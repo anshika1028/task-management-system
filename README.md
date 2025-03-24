@@ -67,6 +67,8 @@ docker-compose -f task-manager-server/docker-compose.yml up --build
 ```
 
 ## 📖 Documentation
-
+- Agile development plan document[`documents/Agile Development Plan_ TMS.pdf`]
+- Requirement document [`documents/Requirement Doc_ TMS.pdf`]
+- Application design document [`documents/Application_Design_Doc_TMS.pdf`]
 - API Spec → [`api-specs.md`](./api-specs.md)
 - JSON Contracts → [`json-contract.txt`](./json-contract.txt)
